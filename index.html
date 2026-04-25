@@ -397,13 +397,9 @@
         <input type="tel" id="f_p2" placeholder="Secondary phone" />
       </div>
       <div class="field">
-        <label>Category <span class="required-star">*</span></label>
-        <select id="f_category">
-          <option value="">— Select —</option>
-          <option value="ORPHAN">Orphan</option>
-          <option value="MISKEEN">Miskeen</option>
-          <option value="OTHER">Other</option>
-        </select>
+        <label>Category</label>
+        <input type="text" value="MISKEEN" readonly style="background:var(--mid);color:#6db8e8;font-weight:600;cursor:not-allowed;opacity:0.85;border-color:rgba(52,152,219,0.3);" />
+        <input type="hidden" id="f_category" value="MISKEEN" />
       </div>
       <div class="field">
         <label>Mark / Score</label>
@@ -487,7 +483,6 @@
     const mark     = document.getElementById('f_mark').value.trim();
 
     if (!name)     { showToast('Name is required', 'error'); return; }
-    if (!category) { showToast('Category is required', 'error'); return; }
 
     entries.push({ name, address, p1, p2, category, mark });
     localStorage.setItem('ramadan_quiz_2026', JSON.stringify(entries));
