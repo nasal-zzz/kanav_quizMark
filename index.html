@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ramadan Quiz 2026 — Data Entry</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --gold: #c9973b;
+    --gold-light: #f0c060;
+    --deep: #0e1a2b;
+    --mid: #162338;
+    --card: #1a2d44;
+    --border: rgba(201,151,59,0.25);
+    --text: #e8dfc8;
+    --muted: #8a9ab5;
+    --green: #2ecc71;
+    --red: #e74c3c;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,151,59,0.12) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 2 L32 10 L40 10 L34 15 L36 23 L30 18 L24 23 L26 15 L20 10 L28 10Z' fill='none' stroke='rgba(201,151,59,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    padding: 48px 20px 32px;
+    position: relative;
+  }
+  .crescent {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 20px rgba(201,151,59,0.5));
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 10px rgba(201,151,59,0.3)); }
+    to   { filter: drop-shadow(0 0 30px rgba(201,151,59,0.7)); }
+  }
+  h1 {
+    font-family: 'Amiri', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--gold-light);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 300;
+    margin-top: 6px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto 0;
+  }
+
+  /* CONTAINER */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-pill span { color: var(--gold-light); font-weight: 600; }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .form-title {
+    font-family: 'Amiri', serif;
+    font-size: 1.25rem;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .required-star { color: var(--gold); margin-left: 2px; }
+
+  input, select {
+    background: var(--mid);
+    border: 1px solid rgba(201,151,59,0.2);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,151,59,0.1);
+  }
+  input::placeholder { color: var(--muted); opacity: 0.6; }
+  select option { background: var(--mid); }
+
+  .phone-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), #a07428);
+    color: #0e1a2b;
+    flex: 1;
+    justify-content: center;
+    min-width: 140px;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,151,59,0.3); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(138,154,181,0.3);
+  }
+  .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+  .btn-download {
+    background: linear-gradient(135deg, #1a6b3c, #0f4225);
+    color: #a8f0c6;
+    border: 1px solid rgba(46,204,113,0.3);
+  }
+  .btn-download:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(46,204,113,0.2); }
+  .btn:active { transform: translateY(0); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+    z-index: 100;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(46,204,113,0.4); }
+  .toast.error   { border-color: rgba(231,76,60,0.4); }
+
+  /* TABLE */
+  .table-section { margin-top: 12px; }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .table-title {
+    font-family: 'Amiri', serif;
+    font-size: 1.25rem;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+  }
+  thead tr {
+    background: var(--mid);
+    border-bottom: 2px solid var(--border);
+  }
+  th {
+    padding: 12px 14px;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(201,151,59,0.08);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: rgba(201,151,59,0.04); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 12px 14px; color: var(--text); vertical-align: middle; }
+  td.sl { color: var(--gold); font-weight: 600; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .badge-orphan  { background: rgba(231,76,60,0.15);  color: #e87060; border: 1px solid rgba(231,76,60,0.3);  }
+  .badge-miskeen { background: rgba(52,152,219,0.15); color: #6db8e8; border: 1px solid rgba(52,152,219,0.3); }
+  .badge-other   { background: rgba(201,151,59,0.12); color: var(--gold); border: 1px solid rgba(201,151,59,0.3); }
+
+  .delete-btn {
+    background: transparent;
+    border: 1px solid rgba(231,76,60,0.3);
+    color: #e87060;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+  .delete-btn:hover { background: rgba(231,76,60,0.1); }
+
+  /* SEARCH */
+  .search-box {
+    background: var(--mid);
+    border: 1px solid rgba(201,151,59,0.2);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--gold); }
+  .search-box::placeholder { color: var(--muted); opacity: 0.7; }
+
+  @media (max-width: 600px) {
+    .form-card { padding: 20px 16px; }
+    .phone-row { grid-template-columns: 1fr; }
+    th:nth-child(3), td:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="crescent">☽</span>
+  <h1>Ramadan Quiz 2026</h1>
+  <p class="subtitle">Participant Data Entry System</p>
+  <div class="divider"></div>
+</header>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-pill">Total Entries: <span id="totalCount">0</span></div>
+    <div class="stat-pill">Orphan: <span id="orphanCount">0</span></div>
+    <div class="stat-pill">Miskeen: <span id="miskeenCount">0</span></div>
+    <div class="stat-pill">Others: <span id="otherCount">0</span></div>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-card">
+    <div class="form-title">✦ Add New Participant</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Name <span class="required-star">*</span></label>
+        <input type="text" id="f_name" placeholder="Full name" />
+      </div>
+      <div class="field">
+        <label>Address</label>
+        <input type="text" id="f_address" placeholder="Address" />
+      </div>
+      <div class="field">
+        <label>Phone P1</label>
+        <input type="tel" id="f_p1" placeholder="Primary phone" />
+      </div>
+      <div class="field">
+        <label>Phone P2</label>
+        <input type="tel" id="f_p2" placeholder="Secondary phone" />
+      </div>
+      <div class="field">
+        <label>Category <span class="required-star">*</span></label>
+        <select id="f_category">
+          <option value="">— Select —</option>
+          <option value="ORPHAN">Orphan</option>
+          <option value="MISKEEN">Miskeen</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mark / Score</label>
+        <input type="number" id="f_mark" placeholder="0" min="0" max="100" />
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="addEntry()">＋ Add Entry</button>
+      <button class="btn btn-secondary" onclick="clearForm()">✕ Clear</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <div class="table-header">
+      <div class="table-title">📋 Participants List</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search…" oninput="renderTable()" />
+        <button class="btn btn-download" onclick="downloadExcel()">⬇ Download Excel</button>
+      </div>
+    </div>
+
+    <div id="emptyState" class="empty-state">
+      <div class="icon">📝</div>
+      <p>No participants added yet. Fill in the form above to get started.</p>
+    </div>
+
+    <div class="table-wrap" id="tableWrap" style="display:none;">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>SL.NO.</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Phone P1</th>
+            <th>Phone P2</th>
+            <th>Category</th>
+            <th>Mark</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let entries = JSON.parse(localStorage.getItem('ramadan_quiz_2026') || '[]');
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 2800);
+  }
+
+  function addEntry() {
+    const name     = document.getElementById('f_name').value.trim();
+    const address  = document.getElementById('f_address').value.trim();
+    const p1       = document.getElementById('f_p1').value.trim();
+    const p2       = document.getElementById('f_p2').value.trim();
+    const category = document.getElementById('f_category').value;
+    const mark     = document.getElementById('f_mark').value.trim();
+
+    if (!name)     { showToast('Name is required', 'error'); return; }
+    if (!category) { showToast('Category is required', 'error'); return; }
+
+    entries.push({ name, address, p1, p2, category, mark });
+    localStorage.setItem('ramadan_quiz_2026', JSON.stringify(entries));
+    clearForm();
+    renderTable();
+    showToast('Participant added successfully!');
+  }
+
+  function clearForm() {
+    ['f_name','f_address','f_p1','f_p2','f_mark'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f_category').value = '';
+  }
+
+  function deleteEntry(idx) {
+    entries.splice(idx, 1);
+    localStorage.setItem('ramadan_quiz_2026', JSON.stringify(entries));
+    renderTable();
+    showToast('Entry removed');
+  }
+
+  function categoryBadge(cat) {
+    if (!cat) return '—';
+    const cls = cat === 'ORPHAN' ? 'orphan' : cat === 'MISKEEN' ? 'miskeen' : 'other';
+    return `<span class="badge badge-${cls}">${cat}</span>`;
+  }
+
+  function renderTable() {
+    const query = document.getElementById('searchBox').value.toLowerCase();
+    const filtered = entries.filter((e, i) => {
+      return !query ||
+        e.name.toLowerCase().includes(query) ||
+        e.address.toLowerCase().includes(query) ||
+        e.category.toLowerCase().includes(query) ||
+        e.p1.includes(query) || e.p2.includes(query);
+    });
+
+    const tbody = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyState');
+    const wrap  = document.getElementById('tableWrap');
+
+    if (entries.length === 0) {
+      empty.style.display = 'block';
+      wrap.style.display  = 'none';
+    } else {
+      empty.style.display = 'none';
+      wrap.style.display  = 'block';
+    }
+
+    tbody.innerHTML = filtered.map((e, fi) => {
+      const realIdx = entries.indexOf(filtered[fi]);
+      return `<tr>
+        <td class="sl">${realIdx + 1}</td>
+        <td>${e.name || '—'}</td>
+        <td>${e.address || '—'}</td>
+        <td>${e.p1 || '—'}</td>
+        <td>${e.p2 || '—'}</td>
+        <td>${categoryBadge(e.category)}</td>
+        <td>${e.mark || '—'}</td>
+        <td><button class="delete-btn" onclick="deleteEntry(${realIdx})">Remove</button></td>
+      </tr>`;
+    }).join('');
+
+    // Stats
+    document.getElementById('totalCount').textContent   = entries.length;
+    document.getElementById('orphanCount').textContent  = entries.filter(e => e.category === 'ORPHAN').length;
+    document.getElementById('miskeenCount').textContent = entries.filter(e => e.category === 'MISKEEN').length;
+    document.getElementById('otherCount').textContent   = entries.filter(e => e.category === 'OTHER').length;
+  }
+
+  function downloadExcel() {
+    if (entries.length === 0) { showToast('No data to download', 'error'); return; }
+
+    const wsData = [
+      ['SL.NO.', 'NAME', 'ADDRESS', 'PHONE NO.', '', 'CATEGORY (ORPHAN/MISKEEN)', 'MARK'],
+      ['', '', '', 'P1', 'P2', '', ''],
+      ...entries.map((e, i) => [i + 1, e.name, e.address, e.p1, e.p2, e.category, e.mark])
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Column widths
+    ws['!cols'] = [
+      {wch: 8}, {wch: 24}, {wch: 28}, {wch: 16}, {wch: 16}, {wch: 24}, {wch: 8}
+    ];
+
+    // Merge SL.NO. header cell (row 0 col 0) spans 2 rows — xlsx.js limited merge support
+    ws['!merges'] = [
+      {s:{r:0,c:3}, e:{r:0,c:4}}, // PHONE NO. merge
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, 'RAMADAN_QUIZ_2026.xlsx');
+    showToast('Excel file downloaded!');
+  }
+
+  // Init
+  renderTable();
+
+  // Enter key submits
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') addEntry(); });
+  });
+</script>
+</body>
+</html>
