@@ -398,14 +398,17 @@
       <table id="dataTable">
         <thead>
           <tr>
-            <th>SL.NO.</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Phone P1</th>
-            <th>Phone P2</th>
-            <th>Category</th>
-            <th>Mark</th>
-            <th>Action</th>
+            <th rowspan="2">SL.NO.</th>
+            <th rowspan="2">NAME</th>
+            <th rowspan="2">ADDRESS</th>
+            <th colspan="2" style="text-align:center;border-bottom:1px solid rgba(201,151,59,0.3);">PHONE NO.</th>
+            <th rowspan="2">CATEGORY<br><span style="font-size:0.65rem;font-weight:400;opacity:0.75;">(ORPHAN/MISKEEN)</span></th>
+            <th rowspan="2">MARK</th>
+            <th rowspan="2">ACTION</th>
+          </tr>
+          <tr>
+            <th>P1</th>
+            <th>P2</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -510,24 +513,60 @@
   function downloadExcel() {
     if (entries.length === 0) { showToast('No data to download', 'error'); return; }
 
+    const wb = XLSX.utils.book_new();
+
+    // Build AOA matching original structure exactly
     const wsData = [
       ['SL.NO.', 'NAME', 'ADDRESS', 'PHONE NO.', '', 'CATEGORY (ORPHAN/MISKEEN)', 'MARK'],
-      ['', '', '', 'P1', 'P2', '', ''],
-      ...entries.map((e, i) => [i + 1, e.name, e.address, e.p1, e.p2, e.category, e.mark])
+      ['',       '',     '',        'P1',        'P2', '',                          ''   ],
+      ...entries.map((e, i) => [i + 1, e.name, e.address, e.p1, e.p2, e.category, e.mark === '' ? '' : Number(e.mark) || e.mark])
     ];
 
-    const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-    // Column widths
-    ws['!cols'] = [
-      {wch: 8}, {wch: 24}, {wch: 28}, {wch: 16}, {wch: 16}, {wch: 24}, {wch: 8}
+    // Exact merges from original file
+    ws['!merges'] = [
+      {s:{r:0,c:0}, e:{r:1,c:0}},  // A1:A2  — SL.NO.
+      {s:{r:0,c:1}, e:{r:1,c:1}},  // B1:B2  — NAME
+      {s:{r:0,c:2}, e:{r:1,c:2}},  // C1:C2  — ADDRESS
+      {s:{r:0,c:3}, e:{r:0,c:4}},  // D1:E1  — PHONE NO.
+      {s:{r:0,c:5}, e:{r:1,c:5}},  // F1:F2  — CATEGORY
+      {s:{r:0,c:6}, e:{r:1,c:6}},  // G1:G2  — MARK
     ];
 
-    // Merge SL.NO. header cell (row 0 col 0) spans 2 rows — xlsx.js limited merge support
-    ws['!merges'] = [
-      {s:{r:0,c:3}, e:{r:0,c:4}}, // PHONE NO. merge
+    // Exact column widths from original
+    ws['!cols'] = [
+      {wpx: 57},   // A  7.55 chars
+      {wpx: 139},  // B  18.49 chars
+      {wpx: 139},  // C  18.48 chars
+      {wpx: 108},  // D  14.32 chars
+      {wpx: 108},  // E  (same as D, P2)
+      {wpx: 143},  // F  19.01 chars
+      {wpx: 108},  // G  14.32 chars
     ];
+
+    // Row heights matching original
+    ws['!rows'] = [ {hpx: 27}, {hpx: 28} ];
+
+    // Apply bold + center alignment to header cells
+    const headerStyle = {
+      font: { name: 'Calibri', bold: true, sz: 11 },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      border: {
+        top:    { style: 'thin' },
+        bottom: { style: 'thin' },
+        left:   { style: 'thin' },
+        right:  { style: 'thin' }
+      }
+    };
+    const subStyle = { ...headerStyle, font: { name: 'Calibri', bold: true, sz: 11 } };
+
+    ['A1','B1','C1','D1','F1','G1'].forEach(ref => {
+      if (ws[ref]) ws[ref].s = headerStyle;
+    });
+    ['D2','E2'].forEach(ref => {
+      if (ws[ref]) ws[ref].s = subStyle;
+    });
 
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
     XLSX.writeFile(wb, 'RAMADAN_QUIZ_2026.xlsx');
